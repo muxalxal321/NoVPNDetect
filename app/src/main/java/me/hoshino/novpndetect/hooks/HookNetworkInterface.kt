@@ -27,4 +27,14 @@ class HookNetworkInterface : XHook {
             }
         })
     }
+
+    private fun hookIsVirtual() {
+        XposedHelpers.findAndHookMethod(NetworkInterface::class.java, "isVirtual", object : XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                Log.i("NoVPNDetect", "NetworkInterface.isVirtual")
+                // VPNs are always virtual
+                param.result = false
+            }
+        })
+    }
 }

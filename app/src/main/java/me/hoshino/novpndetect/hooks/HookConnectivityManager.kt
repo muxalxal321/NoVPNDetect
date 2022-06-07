@@ -13,6 +13,7 @@ class HookConnectivityManager : XHook {
 
     override fun injectHook() {
         hookNetworkInfo()
+        // TODO: will apps detect VPN from isVpnLockdownEnabled?
     }
 
     private fun hookNetworkInfo() {
