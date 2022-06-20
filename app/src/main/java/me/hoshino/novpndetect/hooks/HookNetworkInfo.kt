@@ -41,7 +41,8 @@ class HookNetworkInfo : XHook {
         XposedHelpers.findAndHookMethod(NetworkInfo::class.java, "getTypeName", object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
                 Log.i("NoVPNDetect", "NetworkInfo.getTypeName (${param.result})")
-                if (param.result == "VPN") {
+                val res = param.result
+                if (res is String && res.contains("VPN", ignoreCase = true)) {
                     param.result = "WIFI"
                 }
             }
@@ -49,7 +50,8 @@ class HookNetworkInfo : XHook {
         XposedHelpers.findAndHookMethod(NetworkInfo::class.java, "getSubtypeName", object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
                 Log.i("NoVPNDetect", "NetworkInfo.getSubtypeName (${param.result})")
-                if (param.result == "VPN") {
+                val res = param.result
+                if (res is String && res.contains("VPN", ignoreCase = true)) {
                     param.result = "WIFI"
                 }
             }
