@@ -7,6 +7,7 @@ import me.hoshino.novpndetect.hooks.HookConnectivityManager
 import me.hoshino.novpndetect.hooks.HookNetworkCapabilities
 import me.hoshino.novpndetect.hooks.HookNetworkInfo
 import me.hoshino.novpndetect.hooks.HookNetworkInterface
+import me.hoshino.novpndetect.hooks.HookNetworkRequestBuilder
 
 class XposedInit : IXposedHookLoadPackage {
 
@@ -19,17 +20,12 @@ class XposedInit : IXposedHookLoadPackage {
                 HookConnectivityManager(),
                 HookNetworkInterface(),
                 HookNetworkCapabilities(),
-                HookNetworkInfo()
+                HookNetworkInfo(),
+                HookNetworkRequestBuilder(),
             )
 
         hooks.forEach {
             it.injectHook()
         }
     }
-
-//    override fun initZygote(startupParam: IXposedHookZygoteInit.StartupParam?) {
-//        startupParam ?: return
-//        XposedBridge.log("[NVD] initZygote")
-//        // initialize zygote to load resources
-//    }
 }

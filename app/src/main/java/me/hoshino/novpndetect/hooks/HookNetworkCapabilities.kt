@@ -52,6 +52,8 @@ class HookNetworkCapabilities : XHook {
                 Log.i("NoVPNDetect", "NetworkCapabilities.hasCapability (${param.args[0]})")
                 if (param.args[0] == NetworkCapabilities.NET_CAPABILITY_NOT_VPN) {
                     param.result = true
+                } else if(param.args[0] == NetworkCapabilities.NET_CAPABILITY_INTERNET) {
+                    param.result = true
                 }
             }
         })
