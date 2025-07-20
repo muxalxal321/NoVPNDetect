@@ -6,6 +6,7 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import me.hoshino.novpndetect.TAG
 import me.hoshino.novpndetect.XHook
+import java.net.NetworkInterface
 
 class HookNetworkCapabilities : XHook {
 
@@ -22,9 +23,27 @@ class HookNetworkCapabilities : XHook {
         XposedHelpers.findAndHookMethod(NetworkCapabilities::class.java, "hasTransport", Int::class.java, object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam) {
                 Log.i(TAG, "NetworkCapabilities.hasTransport(${param.args[0]})")
+
+                var probablyTransport = NetworkCapabilities.TRANSPORT_WIFI
+                for(iface in NetworkInterface.getNetworkInterfaces()) {
+                    if(!iface.isUp || iface.isLoopback)
+                        continue
+
+                    if(iface.name.contains("wlan")) {
+                        probablyTransport = NetworkCapabilities.TRANSPORT_WIFI
+                        break
+                    } else if(iface.name.contains("rmnet_data")) {
+                        probablyTransport = NetworkCapabilities.TRANSPORT_CELLULAR
+                        break
+                    } else if(iface.name.contains("eth")) {
+                        probablyTransport = NetworkCapabilities.TRANSPORT_ETHERNET
+                        break
+                    }
+                }
+
                 if (param.args[0] == NetworkCapabilities.TRANSPORT_VPN)
                     param.result = false
-                else if(param.args[0] == NetworkCapabilities.TRANSPORT_WIFI)
+                else if(param.args[0] == probablyTransport)
                     param.result = true
             }
 
