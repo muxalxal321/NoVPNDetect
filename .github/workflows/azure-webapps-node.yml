@@ -1,0 +1,44 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main ] # 当推送到 main 分支时触发
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest # 使用最新的 Ubuntu Runner
+    steps:
+      - name: Checkout repository # 检出代码
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 11 # 设置 Java SDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+
+      - name: Grant execute permission for gradlew # 赋予 gradlew 执行权限
+        run: chmod +x gradlew
+
+      - name: Decode Keystore and Setup Signing Config # 解码 Keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > app/release.keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }} # 从 Secrets 获取 Base64 字符串
+
+      - name: Build APK # 执行 Gradle 构建
+        run: ./gradlew assembleRelease
+        env:
+          STORE_FILE: app/release.keystore
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Upload APK Artifact # 上传 APK 文件
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-apk
+          path: app/build/outputs/apk/release/app-release.apk
